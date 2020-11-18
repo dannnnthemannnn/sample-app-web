@@ -74,18 +74,13 @@ var testTool = {
   },
   parseQuery: function () {
     return (function () {
-      var href = window.location.href;
-      var queryString = href.substr(href.indexOf("?"));
-      var query = {};
-      var pairs = (queryString[0] === "?"
-        ? queryString.substr(1)
-        : queryString
-      ).split("&");
-      for (var i = 0; i < pairs.length; i += 1) {
-        var pair = pairs[i].split("=");
-        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || "");
+
+      const entries = URLSearchParams(window.location.search).entries();
+      const result = {};
+      for(const [key, value] of entries) {
+        result[key] = value;
       }
-      return query;
+      return result;
     })();
   },
   serialize: function (obj) {

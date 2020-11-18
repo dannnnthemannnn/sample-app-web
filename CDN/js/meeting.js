@@ -2,25 +2,19 @@
   var testTool = window.testTool;
   // get meeting args from url
   var tmpArgs = testTool.parseQuery();
+  // Args
+  // mn: meetingNumber
+  // name: b64DecodeUnicode(name) or name
+  // pwd: password
+  // role: role
+  // email: userEmail
+  // lsignature: signature
+
   var meetingConfig = {
     apiKey: tmpArgs.apiKey,
     meetingNumber: tmpArgs.mn,
     userName: (function () {
-      if (tmpArgs.name) {
-        try {
-          return testTool.b64DecodeUnicode(tmpArgs.name);
-        } catch (e) {
-          return tmpArgs.name;
-        }
-      }
-      return (
-        "CDN#" +
-        tmpArgs.version +
-        "#" +
-        testTool.detectOS() +
-        "#" +
-        testTool.getBrowserInfo()
-      );
+      return tmpArgs.name || 'Anonymous';
     })(),
     passWord: tmpArgs.pwd,
     leaveUrl: "/index.html",
@@ -32,31 +26,29 @@
         return tmpArgs.email;
       }
     })(),
-    lang: tmpArgs.lang,
     signature: tmpArgs.signature || "",
-    china: tmpArgs.china === "1",
   };
 
-  // a tool use debug mobile device
-  if (testTool.isMobileDevice()) {
-    vConsole = new VConsole();
-  }
   console.log(JSON.stringify(ZoomMtg.checkSystemRequirements()));
 
-  // it's option if you want to change the WebSDK dependency link resources. setZoomJSLib must be run at first
-  // ZoomMtg.setZoomJSLib("https://source.zoom.us/1.8.3/lib", "/av"); // CDN version defaul
-  if (meetingConfig.china)
-    ZoomMtg.setZoomJSLib("https://jssdk.zoomus.cn/1.8.3/lib", "/av"); // china cdn option
   ZoomMtg.preLoadWasm();
   ZoomMtg.prepareJssdk();
   function beginJoin(signature) {
     ZoomMtg.init({
       leaveUrl: meetingConfig.leaveUrl,
       webEndpoint: meetingConfig.webEndpoint,
+      showMeetingHeader: false, 
+      disableInvite: true, 
+      disableCallOut: true, 
+      disableRecord: true, 
+      isSupportAV: true, 
+      isSupportChat: false, 
+      isSupportQA: false, 
+      isSupportCC: false, 
+      meetingInfo: [],
       success: function () {
         console.log(meetingConfig);
         console.log("signature", signature);
-        $.i18n.reload(meetingConfig.lang);
         ZoomMtg.join({
           meetingNumber: meetingConfig.meetingNumber,
           userName: meetingConfig.userName,
